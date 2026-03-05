@@ -3,6 +3,8 @@ package com.example;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class MainGui extends JFrame {
     private StockManager manager = new StockManager();
@@ -21,6 +23,16 @@ public class MainGui extends JFrame {
         // --- หน้าที่ 1: Dashboard (แสดงรายการสินค้า) ---
         // ==========================================
         JPanel mainPanel = new JPanel(new BorderLayout());
+        // ====== Search Panel ======
+        JPanel searchPanel = new JPanel(new BorderLayout(5,5));
+        JTextField txtSearch = new JTextField();
+        JButton btnSearch = new JButton("Search");
+
+        searchPanel.add(new JLabel("Search: "), BorderLayout.WEST);
+        searchPanel.add(txtSearch, BorderLayout.CENTER);
+        searchPanel.add(btnSearch, BorderLayout.EAST);
+
+        mainPanel.add(searchPanel, BorderLayout.NORTH);
         
         // กำหนดหัวตาราง
         String[] columnNames = {"Product ID", "Name", "Price (฿)", "Qty in Stock", "Category"};
@@ -44,6 +56,34 @@ public class MainGui extends JFrame {
         btnRefresh.addActionListener(e -> refreshTable()); 
         mainPanel.add(btnRefresh, BorderLayout.SOUTH);
 
+        // ====== Search Action ======
+        btnSearch.addActionListener(e -> {
+            String keyword = txtSearch.getText().trim();
+
+            tableModel.setRowCount(0);
+
+            if (keyword.isEmpty()) {
+                refreshTable();
+            } else {
+                for (Product p : manager.searchProducts(keyword)) {
+                    tableModel.addRow(new Object[]{
+                            p.getId(),
+                            p.getName(),
+                            p.getPrice(),
+                            p.getQuantity(),
+                            p.getCategory()
+                    });
+                }
+            }
+        });
+
+        // ====== Search เมื่อพิมพ์ ======
+        txtSearch.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                btnSearch.doClick();
+            }
+        });
+
         // ==========================================
         // --- หน้าที่ 2: Manage Stock (เพิ่มสินค้าใหม่) ---
         // ==========================================
@@ -60,7 +100,7 @@ public class MainGui extends JFrame {
         
         JButton btnAdd = new JButton("Add Product");
         btnAdd.setBackground(new Color(46, 204, 113));
-        btnAdd.setForeground(Color.WHITE);
+        btnAdd.setForeground(Color.BLACK);
         btnAdd.setFocusPainted(false);
 
         // จัดวาง Layout

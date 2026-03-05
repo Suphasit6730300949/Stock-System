@@ -69,4 +69,45 @@ public class StockManager {
     public void saveData() {
         throw new UnsupportedOperationException("Unimplemented method 'saveData'");
     }
+
+    public List<Product> searchProducts(String keyword) {
+
+    List<Product> list = new ArrayList<>();
+
+    String sql = "SELECT * FROM products WHERE " +
+            "id LIKE ? OR " +
+            "name LIKE ? OR " +
+            "category LIKE ? OR " +
+            "price LIKE ?";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        String search = "%" + keyword + "%";
+
+        pstmt.setString(1, search);
+        pstmt.setString(2, search);
+        pstmt.setString(3, search);
+        pstmt.setString(4, search);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+
+            list.add(new Product(
+                    rs.getString("id"),
+                    rs.getString("name"),
+                    rs.getDouble("price"),
+                    rs.getInt("quantity"),
+                    rs.getString("category")
+            ));
+
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
 }
