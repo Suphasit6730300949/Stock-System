@@ -25,22 +25,22 @@ public class DetailView extends JDialog {
         setSize(420, 420);
         setLocationRelativeTo(getParent());
         setLayout(new BorderLayout(10, 10));
-        getContentPane().setBackground(Color.WHITE);
+        getContentPane().setBackground(Color.decode("#cdd0d5"));
 
         // ─── Header ───────────────────────────────────────────
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(isNew ? new Color(16, 185, 129) : new Color(37, 99, 235));
+        headerPanel.setBackground(isNew ? Color.decode("#004e86") : Color.decode("#094654")); //Header ของ Add/Edit ?
         headerPanel.setBorder(BorderFactory.createEmptyBorder(14, 20, 14, 20));
 
         JLabel titleLbl = new JLabel(isNew ? "Add new" : "Edit: " + item.getName());
         titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 17));
-        titleLbl.setForeground(Color.WHITE);
+        titleLbl.setForeground(Color.decode("#ffffff")); //Color.decode("#2563eb")
         headerPanel.add(titleLbl);
         add(headerPanel, BorderLayout.NORTH);
 
         // ─── Form ─────────────────────────────────────────────
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBackground(Color.WHITE);
+        formPanel.setBackground(Color.decode("#ffffff"));
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 28, 10, 28));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 6, 8, 6);
@@ -51,7 +51,7 @@ public class DetailView extends JDialog {
 
         // Name
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0;
-        JLabel nameLbl = new JLabel("name:");
+        JLabel nameLbl = new JLabel("Name:");
         nameLbl.setFont(labelFont);
         formPanel.add(nameLbl, gbc);
 
@@ -59,7 +59,7 @@ public class DetailView extends JDialog {
         nameField = new JTextField(isNew ? "" : item.getName());
         nameField.setFont(fieldFont);
         nameField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(209, 213, 219)),
+            BorderFactory.createLineBorder(Color.decode("#d1d5db")), 
             BorderFactory.createEmptyBorder(6, 10, 6, 10)
         ));
         formPanel.add(nameField, gbc);
@@ -89,11 +89,11 @@ public class DetailView extends JDialog {
         if (!isNew) categoryCombo.setSelectedItem(item.getCategory());
         categoryCombo.setFont(fieldFont);
 
-        // ✅ ปุ่ม Remove category
+        //ปุ่ม Remove category
         JButton removeCatBtn = new JButton("Remove");
         removeCatBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        removeCatBtn.setBackground(new Color(239, 68, 68));
-        removeCatBtn.setForeground(Color.WHITE);
+        removeCatBtn.setBackground(Color.decode("#9e0000"));
+        removeCatBtn.setForeground(Color.decode("#ffffff"));  
         removeCatBtn.setBorderPainted(false);
         removeCatBtn.setFocusPainted(false);
         removeCatBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -132,13 +132,13 @@ public class DetailView extends JDialog {
         newCategoryField = new JTextField();
         newCategoryField.setFont(fieldFont);
         newCategoryField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(209, 213, 219)),
+            BorderFactory.createLineBorder(Color.decode("#d1d5db")), 
             BorderFactory.createEmptyBorder(6, 10, 6, 10)
         ));
         JButton addCatBtn = new JButton("Add");
         addCatBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        addCatBtn.setBackground(new Color(16, 185, 129));
-        addCatBtn.setForeground(Color.WHITE);
+        addCatBtn.setBackground(Color.decode("#004e86")); 
+        addCatBtn.setForeground(Color.decode("#ffffff")); 
         addCatBtn.setBorderPainted(false);
         addCatBtn.setFocusPainted(false);
         addCatBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -159,13 +159,13 @@ public class DetailView extends JDialog {
 
         // ─── Buttons ──────────────────────────────────────────
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 12));
-        btnPanel.setBackground(new Color(249, 250, 251));
-        btnPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(229, 231, 235)));
+        btnPanel.setBackground(Color.decode("#f9fafb")); 
+        btnPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.decode("#e5e7eb"))); 
 
         JButton cancelBtn = new JButton("cancel");
         cancelBtn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        cancelBtn.setBackground(new Color(229, 231, 235));
-        cancelBtn.setForeground(new Color(55, 65, 81));
+        cancelBtn.setBackground(Color.decode("#e5e7eb"));
+        cancelBtn.setForeground(Color.decode("#374151")); 
         cancelBtn.setBorderPainted(false);
         cancelBtn.setFocusPainted(false);
         cancelBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -174,7 +174,7 @@ public class DetailView extends JDialog {
 
         JButton saveBtn = new JButton("save");
         saveBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        saveBtn.setBackground(new Color(37, 99, 235));
+        saveBtn.setBackground(Color.decode("#129469")); 
         saveBtn.setForeground(Color.WHITE);
         saveBtn.setBorderPainted(false);
         saveBtn.setFocusPainted(false);
@@ -183,7 +183,7 @@ public class DetailView extends JDialog {
         saveBtn.addActionListener(e -> {
             String name = nameField.getText().trim();
             if (name.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "กรุณากรอกชื่อสินค้า", "แจ้งเตือน", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Please enter product name", "Alert", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             int qty = (int) quantitySpinner.getValue();

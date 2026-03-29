@@ -5,7 +5,7 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
-import java.util.List;
+//import java.util.List;
 
 public class DashboardView extends JFrame {
     private ItemModel itemModel;
@@ -22,7 +22,7 @@ public class DashboardView extends JFrame {
         refreshTable();
     }
 
-    // ✅ Custom rounded button with shadow + hover
+    //Custom rounded button with shadow + hover
     private JButton makeRoundedButton(String text, Color bg, Color fg) {
         JButton btn = new JButton(text) {
             private boolean hovered = false;
@@ -50,8 +50,8 @@ public class DashboardView extends JFrame {
                 g2.fill(new RoundRectangle2D.Float(0, 0, w - 3, h - 4, arc, arc));
 
                 // ไฮไลท์ขอบบน
-                g2.setColor(new Color(255, 255, 255, 60));
-                g2.setStroke(new BasicStroke(1.2f));
+                g2.setColor(new Color(255, 255, 255, 60)); 
+                g2.setStroke(new BasicStroke(1.2f)); 
                 g2.draw(new RoundRectangle2D.Float(1, 1, w - 5, h - 6, arc, arc));
 
                 g2.dispose();
@@ -74,14 +74,15 @@ public class DashboardView extends JFrame {
         return btn;
     }
 
-    // ✅ Custom rounded search wrapper with shadow + hover + focus effect
+    //Custom rounded search wrapper with shadow + hover + focus effect
     private JPanel makeSearchBox() {
         searchField = new JTextField();
         searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         searchField.setOpaque(false);
-        searchField.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 10));
+        searchField.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 10)); //บน, ซ้าย, ล่าง, ขวา
 
         JLabel searchIcon = new JLabel("\uD83D\uDD0D");
+
         searchIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 15));
         searchIcon.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 6));
         searchIcon.setCursor(new Cursor(Cursor.TEXT_CURSOR));
@@ -122,15 +123,15 @@ public class DashboardView extends JFrame {
                 g2.fill(new RoundRectangle2D.Float(3, 4, w - 6, h - 4, arc, arc));
 
                 // พื้นขาว
-                g2.setColor(Color.WHITE);
+                g2.setColor(Color.decode("#ffffff"));
                 g2.fill(new RoundRectangle2D.Float(0, 0, w - 3, h - 4, arc, arc));
 
                 // border — น้ำเงินเมื่อ focus, ฟ้าอ่อนเมื่อ hover, เทาเมื่อปกติ
                 Color borderColor = focused
-                    ? new Color(37, 99, 235)
+                    ? Color.decode("#b9bbbe")
                     : hovered
-                        ? new Color(96, 165, 250)
-                        : new Color(203, 213, 225);
+                        ? Color.decode("#60a5fa") //#60a5fa
+                        : Color.decode("#cbd5e1"); //#cbd5e1
                 float borderWidth = focused ? 2f : 1.5f;
                 g2.setColor(borderColor);
                 g2.setStroke(new BasicStroke(borderWidth));
@@ -253,7 +254,7 @@ public class DashboardView extends JFrame {
 
         // ─── Bottom toolbar ───────────────────────────────────
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
-        bottomPanel.setBackground(new Color(245, 247, 250));
+        bottomPanel.setBackground(Color.decode("#f5f7fa")); 
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 16, 8, 16));
 
         JButton deleteBtn = makeRoundedButton("Delete Item", 
@@ -274,7 +275,7 @@ public class DashboardView extends JFrame {
 
         JLabel hint = new JLabel("double click for edit");
         hint.setFont(new Font("Segoe UI", Font.ITALIC, 12));
-        hint.setForeground(new Color(107, 114, 128));
+        hint.setForeground(Color.decode("#6b7280")); 
 
         bottomPanel.add(hint);
         bottomPanel.add(deleteBtn);

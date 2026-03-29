@@ -20,7 +20,7 @@ public class ShadowLabel extends JLabel {
         setOpaque(false);
     }
 
-    // ✅ Fix 1: บอก layout manager ว่า component ต้องการพื้นที่เท่าไหร่
+    //Fix 1: บอก layout manager ว่า component ต้องการพื้นที่เท่าไหร่
     @Override
     public Dimension getPreferredSize() {
         FontRenderContext frc = getFRC();
@@ -44,7 +44,7 @@ public class ShadowLabel extends JLabel {
         TextLayout layout = new TextLayout(getText(), getFont(), g2.getFontRenderContext());
         java.awt.geom.Rectangle2D bounds = layout.getBounds();
 
-        // ✅ Fix 2: คำนวณ baseline จาก bounds.getY() ซึ่งเป็นลบ (offset จาก baseline)
+        // Fix 2: คำนวณ baseline จาก bounds.getY() ซึ่งเป็นลบ (offset จาก baseline)
         // วาดให้ข้อความอยู่กลาง component แนวตั้ง
         int x = PADDING;
         int y = (int) Math.ceil(-bounds.getY()) + PADDING; // baseline position
