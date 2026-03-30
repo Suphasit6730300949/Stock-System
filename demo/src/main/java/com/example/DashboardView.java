@@ -189,7 +189,7 @@ public class DashboardView extends JFrame {
         hgbc.insets = new Insets(0, 0, 0, 12);
         headerPanel.add(titleLabel, hgbc);
 
-        // ✅ search box โค้งมน + เงา + hover/focus
+        //search box โค้งมน + เงา + hover/focus
         JPanel searchWrapper = makeSearchBox();
 
         hgbc.gridx = 1; hgbc.weightx = 1;
@@ -265,11 +265,11 @@ public class DashboardView extends JFrame {
 
                 JPopupMenu popup = new JPopupMenu();
 
-                JMenuItem editItem = new JMenuItem("✏️  Edit");
+                JMenuItem editItem = new JMenuItem("Edit");
                 editItem.setFont(new Font("Segoe UI", Font.PLAIN, 13));
                 editItem.addActionListener(ev -> controller.openDetailView(selected));
 
-                JMenuItem deleteItem = new JMenuItem("🗑️  Delete");
+                JMenuItem deleteItem = new JMenuItem("Delete");
                 deleteItem.setFont(new Font("Segoe UI", Font.PLAIN, 13));
                 deleteItem.setForeground(Color.decode("#9e0000"));
                 deleteItem.addActionListener(ev -> controller.deleteItem(selected));
@@ -288,12 +288,12 @@ public class DashboardView extends JFrame {
 
         // ─── Bottom toolbar ───────────────────────────────────
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
-        bottomPanel.setBackground(Color.decode("#f5f7fa")); 
+        bottomPanel.setBackground(Color.decode("#f8f5fa")); //#f8f5fa
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 16, 8, 16));
 
         JButton deleteBtn = makeRoundedButton("Delete Item", 
-                                                    Color.decode("#9e0000"), //สีปุ่ม
-                                                    Color.decode("#ffffff")); //สีตัวหนังสือ
+                                                    Color.decode("#9e0000"), //สีปุ่ม Delete
+                                                    Color.decode("#ffffff")); //สีตัวหนังสือ Delete
         deleteBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0) {

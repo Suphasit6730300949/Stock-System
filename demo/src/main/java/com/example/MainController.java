@@ -2,10 +2,14 @@ package com.example;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
 
 public class MainController {
     private ItemModel itemModel;
     private DashboardView dashboardView;
+
+    private static final DateTimeFormatter DATE_FMT =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy  HH:mm");
 
     public MainController(ItemModel itemModel) {
         this.itemModel = itemModel;
@@ -33,9 +37,8 @@ public class MainController {
     // Double-click → open read-only detail window (non-modal, multiple allowed)
     public void openItemDetailWindow(Item item) {
         JFrame detailWindow = new JFrame("Detail: " + item.getName());
-        detailWindow.setSize(380, 300);
+        detailWindow.setSize(400, 360);
         detailWindow.setLocationRelativeTo(dashboardView);
-        // Offset each new window slightly so they don't stack exactly
         detailWindow.setLocation(
             detailWindow.getX() + (int)(Math.random() * 60) - 30,
             detailWindow.getY() + (int)(Math.random() * 60) - 30
@@ -58,12 +61,14 @@ public class MainController {
         body.setBackground(Color.WHITE);
         body.setBorder(BorderFactory.createEmptyBorder(24, 32, 24, 32));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 6, 8, 6);
+        gbc.insets = new Insets(7, 6, 7, 6);
         gbc.anchor = GridBagConstraints.WEST;
 
         Font lblFont = new Font("Segoe UI", Font.BOLD, 13);
         Font valFont = new Font("Segoe UI", Font.PLAIN, 14);
+        Font dateFont = new Font("Segoe UI", Font.PLAIN, 13);
 
+        // ─ ข้อมูลหลัก ─
         String[][] rows = {
             {"Name",     item.getName()},
             {"Category", item.getCategory()},
@@ -82,6 +87,50 @@ public class MainController {
             JLabel val = new JLabel(rows[i][1]);
             val.setFont(valFont);
             body.add(val, gbc);
+        }
+
+        // ─ เส้นคั่น ─
+        gbc.gridx = 0; gbc.gridy = rows.length; gbc.gridwidth = 2;
+        gbc.weightx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 0, 10, 0);
+        JSeparator sep = new JSeparator();
+        sep.setForeground(Color.decode("#e5e7eb"));
+        body.add(sep, gbc);
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(5, 6, 5, 6);
+
+        // ─ วันที่เพิ่ม ─
+        int r = rows.length + 1;
+        gbc.gridx = 0; gbc.gridy = r; gbc.weightx = 0;
+        JLabel addedLbl = new JLabel("Added:");
+        addedLbl.setFont(lblFont);
+        addedLbl.setForeground(Color.decode("#6b7280"));
+        body.add(addedLbl, gbc);
+
+        gbc.gridx = 1; gbc.weightx = 1;
+        String createdText = (item.getCreatedAt() != null)
+                ? item.getCreatedAt().format(DATE_FMT)
+                : "—";
+        JLabel addedVal = new JLabel(createdText);
+        addedVal.setFont(dateFont);
+        addedVal.setForeground(Color.decode("#374151"));
+        body.add(addedVal, gbc);
+
+        // ─ แก้ไขล่าสุด (แสดงเฉพาะเมื่อเคย edit) ─
+        if (item.getUpdatedAt() != null) {
+            r++;
+            gbc.gridx = 0; gbc.gridy = r; gbc.weightx = 0;
+            JLabel editedLbl = new JLabel("Last edited:");
+            editedLbl.setFont(lblFont);
+            editedLbl.setForeground(Color.decode("#6b7280"));
+            body.add(editedLbl, gbc);
+
+            gbc.gridx = 1; gbc.weightx = 1;
+            JLabel editedVal = new JLabel(item.getUpdatedAt().format(DATE_FMT));
+            editedVal.setFont(dateFont);
+            editedVal.setForeground(Color.decode("#b45309")); // สีส้มอำพัน
+            body.add(editedVal, gbc);
         }
 
         detailWindow.add(body, BorderLayout.CENTER);

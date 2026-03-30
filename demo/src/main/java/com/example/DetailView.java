@@ -33,7 +33,7 @@ public class DetailView extends JDialog {
                     btn.setText("▲");
                     btn.setFont(new Font("Segoe UI", Font.PLAIN, 10));
                     btn.setBackground(Color.decode("#e0e0e0"));
-                    btn.setForeground(Color.decode("#333333"));
+                    btn.setForeground(Color.decode("#333333")); 
                     btn.setFocusPainted(false);
                     btn.setBorderPainted(false);
                     btn.setContentAreaFilled(true);

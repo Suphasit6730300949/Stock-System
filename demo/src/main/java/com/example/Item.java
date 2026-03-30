@@ -1,10 +1,14 @@
 package com.example;
 
+import java.time.LocalDateTime;
+
 public class Item {
     private String name;
     private int quantity;
     private String category;
     private double price;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Item(String name, int quantity, String category) {
         this.name = name;
@@ -20,40 +24,36 @@ public class Item {
         this.price = price;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    public Item(String name, int quantity, String category, double price,
+                LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.name = name;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
         this.quantity = quantity;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
         this.category = category;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
         this.price = price;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     @Override
     public String toString() {
-        return name + " (à¸¿" + String.format("%.2f", price) + ")";
+        return name + " (฿" + String.format("%.2f", price) + ")";
     }
 }
