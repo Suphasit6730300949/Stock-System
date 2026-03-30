@@ -13,17 +13,84 @@ public class DetailView extends JDialog {
     private JComboBox<String> categoryCombo;
     private JTextField newCategoryField;
     private JSpinner priceSpinner;
+    private JTextArea descriptionArea;
 
     public DetailView(JFrame parent, MainController controller) {
         super(parent, true);
         this.controller = controller;
     }
 
+    // ── Replace the "−" decrement button with an "▲" up-arrow button ──────────
+    private void fixSpinnerArrows(JSpinner spinner) {
+        JComponent editor = spinner.getEditor();
+        // The spinner UI has two arrow buttons; find them
+        for (Component c : spinner.getComponents()) {
+            if (c instanceof JButton btn) {
+                // The increment button already shows "▲" by default in most L&Fs,
+                // but the decrement shows "▼" or "−". We identify it by its action:
+                // actionCommand is "increment" or "decrement".
+                String action = btn.getActionCommand();
+                if ("decrement".equals(action)) {
+                    btn.setText("▲");
+                    btn.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+                    btn.setBackground(Color.decode("#e0e0e0"));
+                    btn.setForeground(Color.decode("#333333"));
+                    btn.setFocusPainted(false);
+                    btn.setBorderPainted(false);
+                    btn.setContentAreaFilled(true);
+                    btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                    btn.setToolTipText("Decrease");
+
+                    // Wire it up: clicking ▲ on the BOTTOM button still decrements,
+                    // so swap — remove original listeners and add increment action
+                    for (java.awt.event.ActionListener al : btn.getActionListeners()) {
+                        btn.removeActionListener(al);
+                    }
+                    btn.addActionListener(e -> {
+                        try {
+                            spinner.commitEdit();
+                        } catch (java.text.ParseException ignored) {
+                        }
+                        SpinnerModel model = spinner.getModel();
+                        Object next = model.getNextValue();
+                        if (next != null)
+                            model.setValue(next);
+                    });
+                }
+                if ("increment".equals(action)) {
+                    btn.setText("▼");
+                    btn.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+                    btn.setBackground(Color.decode("#e0e0e0"));
+                    btn.setForeground(Color.decode("#333333"));
+                    btn.setFocusPainted(false);
+                    btn.setBorderPainted(false);
+                    btn.setContentAreaFilled(true);
+                    btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                    btn.setToolTipText("Increase");
+
+                    for (java.awt.event.ActionListener al : btn.getActionListeners()) {
+                        btn.removeActionListener(al);
+                    }
+                    btn.addActionListener(e -> {
+                        try {
+                            spinner.commitEdit();
+                        } catch (java.text.ParseException ignored) {
+                        }
+                        SpinnerModel model = spinner.getModel();
+                        Object prev = model.getPreviousValue();
+                        if (prev != null)
+                            model.setValue(prev);
+                    });
+                }
+            }
+        }
+    }
+
     public void showDetailView(Item item) {
         this.currentItem = item;
         boolean isNew = (item == null);
         setTitle(isNew ? "Add new" : "Edit");
-        setSize(420, 480);
+        setSize(420, 580);
         setLocationRelativeTo(getParent());
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(Color.decode("#cdd0d5"));
@@ -60,16 +127,82 @@ public class DetailView extends JDialog {
 
         gbc.gridx = 1;
         gbc.weightx = 1;
-        nameField = new JTextField(isNew ? "" : item.getName());
+        nameField = new JTextField();
+        nameField.setDocument(new javax.swing.text.PlainDocument() {
+            @Override
+            public void insertString(int offs, String str, javax.swing.text.AttributeSet a)
+                    throws javax.swing.text.BadLocationException {
+                if (str == null)
+                    return;
+                if ((getLength() + str.length()) <= 30)
+                    super.insertString(offs, str, a);
+            }
+        });
+        nameField.setText(isNew ? "" : item.getName());
         nameField.setFont(fieldFont);
         nameField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.decode("#d1d5db")),
                 BorderFactory.createEmptyBorder(6, 10, 6, 10)));
-        formPanel.add(nameField, gbc);
+
+        JLabel charCountLbl = new JLabel((isNew ? "0" : String.valueOf(item.getName().length())) + " / 30");
+        charCountLbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        charCountLbl.setForeground(Color.decode("#9ca3af"));
+        charCountLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+        nameField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            private void update() {
+                int len = nameField.getText().length();
+                charCountLbl.setText(len + " / 30");
+                charCountLbl.setForeground(len == 30 ? Color.decode("#dc2626") : Color.decode("#9ca3af"));
+            }
+
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                update();
+            }
+
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                update();
+            }
+
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                update();
+            }
+        });
+
+        JPanel namePanel = new JPanel(new BorderLayout(0, 2));
+        namePanel.setBackground(Color.WHITE);
+        namePanel.add(nameField, BorderLayout.CENTER);
+        namePanel.add(charCountLbl, BorderLayout.SOUTH);
+        formPanel.add(namePanel, gbc);
+
+        // Description (รองจาก Name)
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        JLabel descLbl = new JLabel("Description:");
+        descLbl.setFont(labelFont);
+        formPanel.add(descLbl, gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        descriptionArea = new JTextArea(3, 20);
+        descriptionArea.setFont(fieldFont);
+        descriptionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+        descriptionArea.setText(isNew ? "" : item.getDescription());
+        descriptionArea.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.decode("#d1d5db")),
+                BorderFactory.createEmptyBorder(6, 10, 6, 10)));
+        JScrollPane descScroll = new JScrollPane(descriptionArea);
+        descScroll.setBorder(BorderFactory.createLineBorder(Color.decode("#d1d5db")));
+        formPanel.add(descScroll, gbc);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Quantity
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.weightx = 0;
         JLabel qtyLbl = new JLabel("Quantity:");
         qtyLbl.setFont(labelFont);
@@ -80,11 +213,12 @@ public class DetailView extends JDialog {
         quantitySpinner = new JSpinner(new SpinnerNumberModel(
                 isNew ? 0 : item.getQuantity(), 0, 99999, 1));
         quantitySpinner.setFont(fieldFont);
+        fixSpinnerArrows(quantitySpinner);
         formPanel.add(quantitySpinner, gbc);
 
         // Price
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.weightx = 0;
         JLabel priceLbl = new JLabel("Price (฿):");
         priceLbl.setFont(labelFont);
@@ -97,11 +231,12 @@ public class DetailView extends JDialog {
         priceSpinner.setFont(fieldFont);
         JSpinner.NumberEditor priceEditor = new JSpinner.NumberEditor(priceSpinner, "#,##0.00");
         priceSpinner.setEditor(priceEditor);
+        fixSpinnerArrows(priceSpinner);
         formPanel.add(priceSpinner, gbc);
 
         // Category (dropdown + remove button)
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.weightx = 0;
         JLabel catLbl = new JLabel("Category:");
         catLbl.setFont(labelFont);
@@ -148,7 +283,7 @@ public class DetailView extends JDialog {
 
         // Add new category
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.weightx = 0;
         JLabel newCatLbl = new JLabel("new Category:");
         newCatLbl.setFont(labelFont);
@@ -214,12 +349,22 @@ public class DetailView extends JDialog {
                 JOptionPane.showMessageDialog(this, "Please enter product name", "Alert", JOptionPane.WARNING_MESSAGE);
                 return;
             }
+            boolean isDuplicate = controller.getItemModel().getItems().stream()
+                    .anyMatch(i -> i.getName().replaceAll("\\s+", "").equalsIgnoreCase(name.replaceAll("\\s+", ""))
+                            && (isNew || !i.getName().equalsIgnoreCase(currentItem.getName())));
+            if (isDuplicate) {
+                JOptionPane.showMessageDialog(this, "Product name \"" + name + "\" already exists", "Duplicate Name",
+                        JOptionPane.WARNING_MESSAGE);
+                nameField.requestFocusInWindow();
+                return;
+            }
             int qty = (int) quantitySpinner.getValue();
             String cat = (String) categoryCombo.getSelectedItem();
             double price = ((Number) priceSpinner.getValue()).doubleValue();
+            String desc = descriptionArea.getText().trim();
 
             if (isNew) {
-                Item newItem = new Item(name, qty, cat, price);
+                Item newItem = new Item(name, qty, cat, price, desc);
                 controller.getItemModel().addItem(newItem);
             } else {
                 String oldName = currentItem.getName();
@@ -227,6 +372,7 @@ public class DetailView extends JDialog {
                 currentItem.setQuantity(qty);
                 currentItem.setCategory(cat);
                 currentItem.setPrice(price);
+                currentItem.setDescription(desc);
                 controller.getItemModel().updateItem(oldName, currentItem);
             }
             controller.onSave();

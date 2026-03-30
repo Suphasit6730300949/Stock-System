@@ -2,7 +2,10 @@ package com.example;
 
 import com.mongodb.client.*;
 import org.bson.Document;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MongoDB {
@@ -22,38 +25,70 @@ public class MongoDB {
         catCollection = db.getCollection(CAT_COLLECTION);
     }
 
+    // ── Helper: Date ↔ LocalDateTime ──
+    private LocalDateTime toLocalDateTime(Object val) {
+        if (val instanceof Date d) {
+            return d.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        }
+        return null;
+    }
+
+    private Date toDate(LocalDateTime ldt) {
+        if (ldt == null)
+            return null;
+        return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
     // ── โหลดทุก item จาก MongoDB ──
     public List<Item> loadAllItems() {
         List<Item> items = new ArrayList<>();
         for (Document doc : collection.find()) {
             double price = doc.containsKey("price") ? doc.getDouble("price") : 0.0;
+            String description = doc.containsKey("description") ? doc.getString("description") : "";
+            LocalDateTime createdAt = toLocalDateTime(doc.get("createdAt"));
+            LocalDateTime updatedAt = toLocalDateTime(doc.get("updatedAt"));
             items.add(new Item(
                     doc.getString("name"),
                     doc.getInteger("quantity"),
                     doc.getString("category"),
-                    price));
+                    price,
+                    description,
+                    createdAt,
+                    updatedAt));
         }
         return items;
     }
 
-    // ── เพิ่ม item ──
+    // ── เพิ่ม item (บันทึก createdAt = now, updatedAt = null) ──
     public void insertItem(Item item) {
+        LocalDateTime now = LocalDateTime.now();
+        item.setCreatedAt(now);
+        item.setUpdatedAt(null);
+
         Document doc = new Document()
                 .append("name", item.getName())
                 .append("quantity", item.getQuantity())
                 .append("category", item.getCategory())
-                .append("price", item.getPrice());
+                .append("price", item.getPrice())
+                .append("description", item.getDescription())
+                .append("createdAt", toDate(now))
+                .append("updatedAt", null);
         collection.insertOne(doc);
     }
 
-    // ── แก้ไข item ──
+    // ── แก้ไข item (อัปเดต updatedAt = now) ──
     public void updateItem(String oldName, Item item) {
+        LocalDateTime now = LocalDateTime.now();
+        item.setUpdatedAt(now);
+
         Document filter = new Document("name", oldName);
         Document update = new Document("$set", new Document()
                 .append("name", item.getName())
                 .append("quantity", item.getQuantity())
                 .append("category", item.getCategory())
-                .append("price", item.getPrice()));
+                .append("price", item.getPrice())
+                .append("description", item.getDescription())
+                .append("updatedAt", toDate(now)));
         collection.updateOne(filter, update);
     }
 
@@ -71,7 +106,7 @@ public class MongoDB {
         return cats;
     }
 
-    // บันทึก category ใหม่ลง MongoDB (เช็คก่อนว่ามีอยู่แล้วหรือเปล่า)
+    // บันทึก category ใหม่ลง MongoDB
     public void insertCategory(String categoryName) {
         Document existing = catCollection.find(new Document("name", categoryName)).first();
         if (existing == null) {
