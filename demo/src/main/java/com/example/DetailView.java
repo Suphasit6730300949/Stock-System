@@ -296,12 +296,23 @@ public class DetailView extends JDialog {
         JButton addCatBtn = makeSmallBtn("+ Add", Color.decode("#dbeafe"), Color.decode("#1d4ed8"));
         addCatBtn.addActionListener(e -> {
             String newCat = newCategoryField.getText().trim();
-            if (!newCat.isEmpty()) {
-                controller.getItemModel().addCategory(newCat);
-                categoryCombo.addItem(newCat);
-                categoryCombo.setSelectedItem(newCat);
-                newCategoryField.setText("");
+            if (newCat.isEmpty()) return;
+
+            // Validate: ชื่อ category ต้องไม่ซ้ำ (ignore whitespace + case)
+            boolean isDupCat = controller.getItemModel().getCategories().stream()
+                    .anyMatch(c -> c.replaceAll("\\s+", "")
+                                    .equalsIgnoreCase(newCat.replaceAll("\\s+", "")));
+            if (isDupCat) {
+                JOptionPane.showMessageDialog(DetailView.this,
+                        "\"" + newCat + "\" already exists.", "Duplicate Category", JOptionPane.WARNING_MESSAGE);
+                newCategoryField.requestFocusInWindow();
+                return;
             }
+
+            controller.getItemModel().addCategory(newCat);
+            categoryCombo.addItem(newCat);
+            categoryCombo.setSelectedItem(newCat);
+            newCategoryField.setText("");
         });
 
         JPanel newCatRow = new JPanel(new BorderLayout(8, 0));

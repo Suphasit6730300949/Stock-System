@@ -17,13 +17,14 @@ public class MongoDB {
 
     private static final String URI            = "mongodb+srv://StockDB:Tt0897938633@cluster0.nkctc3k.mongodb.net/?appName=Cluster0";
     private static final String DB_NAME        = "mystock";
-    private static final String COLLECTION     = "items";
-    private static final String CAT_COLLECTION = "categories";
+    private static final String COLLECTION     = "items"; //table
+    private static final String CAT_COLLECTION = "categories"; //table
 
-    private final MongoCollection<Document> collection;
-    private final MongoCollection<Document> catCollection;
+    private final MongoCollection<Document> collection; //ตารางItem
+    private final MongoCollection<Document> catCollection; //ตารางCategory
     private final MongoClient               mongoClient;
 
+    //Constructor
     public MongoDB() {
         mongoClient   = MongoClients.create(URI);
         MongoDatabase db = mongoClient.getDatabase(DB_NAME);
@@ -40,6 +41,7 @@ public class MongoDB {
         return null;
     }
 
+    //แปลงกลับเป็น Date เพื่อเก็บใน Mongo DB
     private Date toDate(LocalDateTime ldt) {
         if (ldt == null) return null;
         return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
@@ -48,9 +50,9 @@ public class MongoDB {
     // ── Items ────────────────────────────────────────────────────────────────
 
     /** โหลด items ทั้งหมดจาก MongoDB */
-    public List<Item> loadAllItems() {
-        List<Item> items = new ArrayList<>();
-        for (Document doc : collection.find()) {
+    public List<Item> loadAllItems() { //ดึงสินค้าทั้งหมด
+        List<Item> items = new ArrayList<>(); //เตรียมList
+        for (Document doc : collection.find()) { //loop ทุก document ใน MongoDB
             double        price       = doc.containsKey("price")       ? doc.getDouble("price")       : 0.0;
             String        description = doc.containsKey("description") ? doc.getString("description") : "";
             LocalDateTime createdAt   = toLocalDateTime(doc.get("createdAt"));
@@ -64,7 +66,7 @@ public class MongoDB {
                     createdAt,
                     updatedAt));
         }
-        return items;
+        return items; //เอาข้อมูลจาก Mongo → สร้างเป็น object List ของ Item
     }
 
     /** เพิ่ม item ใหม่ — บันทึก createdAt = now, updatedAt = null */
@@ -80,8 +82,8 @@ public class MongoDB {
                 .append("price",       item.getPrice())
                 .append("description", item.getDescription())
                 .append("createdAt",   toDate(now))
-                .append("updatedAt",   null);
-        collection.insertOne(doc);
+                .append("updatedAt",   null); 
+        collection.insertOne(doc); //insert ลง MongoDB
     }
 
     /** อัปเดต item — บันทึก updatedAt = now */
@@ -89,20 +91,20 @@ public class MongoDB {
         LocalDateTime now = LocalDateTime.now();
         item.setUpdatedAt(now);
 
-        Document filter = new Document("name", oldName);
-        Document update = new Document("$set", new Document()
+        Document filter = new Document("name", oldName); //หาitemที่ชื่อเดิม
+        Document update = new Document("$set", new Document() //แก้ค่าบาง field
                 .append("name",        item.getName())
                 .append("quantity",    item.getQuantity())
                 .append("category",    item.getCategory())
                 .append("price",       item.getPrice())
                 .append("description", item.getDescription())
-                .append("updatedAt",   toDate(now)));
+                .append("updatedAt",   toDate(now))); //เวลาที่update
         collection.updateOne(filter, update);
     }
 
     /** ลบ item ตามชื่อ */
     public void deleteItem(String name) {
-        collection.deleteOne(new Document("name", name));
+        collection.deleteOne(new Document("name", name)); //ลบตามชื่อ
     }
 
     // ── Categories ──────────────────────────────────────────────────────────

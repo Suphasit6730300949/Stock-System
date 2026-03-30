@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 /**
  * Model: ข้อมูลของสินค้าชิ้นหนึ่ง
  * เก็บชื่อ, จำนวน, หมวดหมู่, ราคา, คำอธิบาย และเวลา createdAt / updatedAt
+ * มีแค่ Constructor และ Getter/Setter ไว้ดึงหรือแก้ค่า
  */
 public class Item {
 
@@ -17,19 +18,22 @@ public class Item {
     private LocalDateTime updatedAt;
 
     // ── Constructors (overloaded เพื่อรองรับการสร้างจาก DB และจาก UI) ──────────
-
+    //ราคา 0
     public Item(String name, int quantity, String category) {
         this(name, quantity, category, 0.0, "", null, null);
     }
 
+    //ไม่มี description
     public Item(String name, int quantity, String category, double price) {
         this(name, quantity, category, price, "", null, null);
     }
 
+    //มีราคา
     public Item(String name, int quantity, String category, double price, String description) {
         this(name, quantity, category, price, description, null, null);
     }
 
+    //ไม่มี description
     public Item(String name, int quantity, String category, double price,
                 LocalDateTime createdAt, LocalDateTime updatedAt) {
         this(name, quantity, category, price, "", createdAt, updatedAt);
@@ -65,7 +69,7 @@ public class Item {
     public void   setDescription(String desc)      { this.description = desc != null ? desc : ""; }
 
     public LocalDateTime getCreatedAt()            { return createdAt; }
-    public void          setCreatedAt(LocalDateTime t) { this.createdAt = t; }
+    public void          setCreatedAt(LocalDateTime t) { this.createdAt = t; } 
 
     public LocalDateTime getUpdatedAt()            { return updatedAt; }
     public void          setUpdatedAt(LocalDateTime t) { this.updatedAt = t; }
