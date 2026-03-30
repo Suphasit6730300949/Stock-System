@@ -534,6 +534,29 @@ public class DashboardView extends JFrame {
         JPanel btnArea = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
         btnArea.setOpaque(false);
 
+        // ── Sort button with popup menu ────────────────────────────────────────
+        JButton sortBtn = makePillBtn("\u21c5  Sort", Color.decode("#374151"), Color.decode("#1f2937"), Color.WHITE);
+        JPopupMenu sortMenu = new JPopupMenu();
+        sortMenu.setBorder(BorderFactory.createLineBorder(BORDER_CLR));
+
+        String[] sortLabels = {
+                "\uD83D\uDD24  Name: A \u2192 Z",
+                "\uD83D\uDD24  Name: Z \u2192 A",
+                "\uD83D\uDD22  Quantity: Low \u2192 High",
+                "\uD83D\uDD22  Quantity: High \u2192 Low",
+                "\uD83D\uDCB0  Price: Low \u2192 High",
+                "\uD83D\uDCB0  Price: High \u2192 Low",
+                "\uD83C\uDFF7  Category: A \u2192 Z",
+                "\u26A0  Out of Stock"
+        };
+        for (String label : sortLabels) {
+            JMenuItem mi = new JMenuItem(label);
+            mi.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 13));
+            mi.addActionListener(e -> sortAndDisplay(label));
+            sortMenu.add(mi);
+        }
+        sortBtn.addActionListener(e -> sortMenu.show(sortBtn, 0, -sortMenu.getPreferredSize().height));
+
         JButton deleteBtn = makePillBtn("\uD83D\uDDD1  Delete Selected", DANGER, DANGER_DARK, Color.WHITE);
         deleteBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
@@ -545,6 +568,7 @@ public class DashboardView extends JFrame {
             }
         });
 
+        btnArea.add(sortBtn);
         btnArea.add(deleteBtn);
         footer.add(hint, BorderLayout.WEST);
         footer.add(btnArea, BorderLayout.EAST);
@@ -594,6 +618,37 @@ public class DashboardView extends JFrame {
                         String.format("%.2f", item.getPrice())
                 });
             }
+        }
+    }
+
+    // ── Sort and display ───────────────────────────────────────────────────────
+    private void sortAndDisplay(String mode) {
+        java.util.List<Item> sorted = new java.util.ArrayList<>(itemModel.getItems());
+        if (mode.contains("Name") && mode.contains("A \u2192 Z")) {
+            sorted.sort(java.util.Comparator.comparing(i -> i.getName().toLowerCase()));
+        } else if (mode.contains("Name") && mode.contains("Z \u2192 A")) {
+            sorted.sort((a, b) -> b.getName().toLowerCase().compareTo(a.getName().toLowerCase()));
+        } else if (mode.contains("Quantity") && mode.contains("Low \u2192 High")) {
+            sorted.sort(java.util.Comparator.comparingInt(Item::getQuantity));
+        } else if (mode.contains("Quantity") && mode.contains("High \u2192 Low")) {
+            sorted.sort((a, b) -> Integer.compare(b.getQuantity(), a.getQuantity()));
+        } else if (mode.contains("Price") && mode.contains("Low \u2192 High")) {
+            sorted.sort(java.util.Comparator.comparingDouble(Item::getPrice));
+        } else if (mode.contains("Price") && mode.contains("High \u2192 Low")) {
+            sorted.sort((a, b) -> Double.compare(b.getPrice(), a.getPrice()));
+        } else if (mode.contains("Category")) {
+            sorted.sort(java.util.Comparator.comparing(i -> i.getCategory().toLowerCase()));
+        } else if (mode.contains("Out of Stock")) {
+            sorted.removeIf(i -> i.getQuantity() > 0);
+        }
+        tableModel.setRowCount(0);
+        for (Item item : sorted) {
+            tableModel.addRow(new Object[] {
+                    item.getName(),
+                    item.getQuantity(),
+                    item.getCategory(),
+                    String.format("%.2f", item.getPrice())
+            });
         }
     }
 }
