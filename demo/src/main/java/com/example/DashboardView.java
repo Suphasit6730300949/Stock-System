@@ -13,7 +13,6 @@ public class DashboardView extends JFrame {
     private JTable table;
     private DefaultTableModel tableModel;
     private JTextField searchField;
-    private JPanel statBar;
 
     // ── Design tokens ──────────────────────────────────────────────────────────
     private static final Color HDR_FROM = Color.decode("#0a1628");
@@ -312,11 +311,20 @@ public class DashboardView extends JFrame {
 
         headerPanel.add(topBar, BorderLayout.NORTH);
 
-        // stat bar — stored as field so Refresh can update it
-        statBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        // stat bar
+        JPanel statBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         statBar.setOpaque(false);
         statBar.setBorder(BorderFactory.createEmptyBorder(0, 24, 14, 24));
-        refreshStatBar();
+
+        int totalItems = itemModel.getItems().size();
+        int totalQty = itemModel.getItems().stream().mapToInt(Item::getQuantity).sum();
+        double totalVal = itemModel.getItems().stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum();
+        int totalCats = itemModel.getCategories().size();
+
+        statBar.add(makeStatChip(String.valueOf(totalItems), "items", new Color(147, 197, 253)));
+        statBar.add(makeStatChip(String.valueOf(totalQty), "units in stock", new Color(110, 231, 183)));
+        statBar.add(makeStatChip(String.format("%,.0f(THB)", totalVal), "total value", new Color(253, 224, 71)));
+        statBar.add(makeStatChip(String.valueOf(totalCats), "categories", new Color(216, 180, 254)));
 
         headerPanel.add(statBar, BorderLayout.SOUTH);
         add(headerPanel, BorderLayout.NORTH);
@@ -358,13 +366,13 @@ public class DashboardView extends JFrame {
         table.getColumnModel().getColumn(2).setPreferredWidth(140);
         table.getColumnModel().getColumn(3).setPreferredWidth(110);
 
-        // right-align Qty and Price
+        // center-align Qty and Price
         DefaultTableCellRenderer rightAlign = new DefaultTableCellRenderer();
-        rightAlign.setHorizontalAlignment(SwingConstants.RIGHT);
+        rightAlign.setHorizontalAlignment(SwingConstants.CENTER);
         table.getColumnModel().getColumn(1).setCellRenderer(rightAlign);
         table.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer() {
             {
-                setHorizontalAlignment(SwingConstants.RIGHT);
+                setHorizontalAlignment(SwingConstants.CENTER);
             }
 
             @Override
@@ -398,6 +406,7 @@ public class DashboardView extends JFrame {
                     }
                 };
                 lbl.setFont(new Font("Segoe UI Emoji", Font.BOLD, 12));
+                lbl.setHorizontalAlignment(SwingConstants.CENTER);
                 lbl.setForeground(sel ? SEL_FG : Color.decode("#0369a1"));
                 lbl.setBackground(sel ? SEL_BG : (row % 2 == 0 ? TABLE_BG : ROW_ALT));
                 lbl.setOpaque(true);
@@ -423,7 +432,7 @@ public class DashboardView extends JFrame {
                 lbl.setBackground(HDR_TBL_BG);
                 lbl.setOpaque(true);
                 lbl.setBorder(BorderFactory.createEmptyBorder(0, col == 0 ? 16 : 8, 0, 8));
-                lbl.setHorizontalAlignment(col >= 1 ? SwingConstants.RIGHT : SwingConstants.LEFT);
+                lbl.setHorizontalAlignment(SwingConstants.CENTER);
                 return lbl;
             }
         });
@@ -525,13 +534,6 @@ public class DashboardView extends JFrame {
         JPanel btnArea = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
         btnArea.setOpaque(false);
 
-        JButton refreshBtn = makePillBtn("\u27f3  Refresh", Color.decode("#374151"), Color.decode("#1f2937"),
-                Color.WHITE);
-        refreshBtn.addActionListener(e -> {
-            itemModel.reloadFromDB();
-            refreshTable();
-        });
-
         JButton deleteBtn = makePillBtn("\uD83D\uDDD1  Delete Selected", DANGER, DANGER_DARK, Color.WHITE);
         deleteBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
@@ -543,7 +545,6 @@ public class DashboardView extends JFrame {
             }
         });
 
-        btnArea.add(refreshBtn);
         btnArea.add(deleteBtn);
         footer.add(hint, BorderLayout.WEST);
         footer.add(btnArea, BorderLayout.EAST);
@@ -559,20 +560,6 @@ public class DashboardView extends JFrame {
     }
 
     // ── Refresh / filter ──────────────────────────────────────────────────────
-    private void refreshStatBar() {
-        statBar.removeAll();
-        int totalItems = itemModel.getItems().size();
-        int totalQty = itemModel.getItems().stream().mapToInt(Item::getQuantity).sum();
-        double totalVal = itemModel.getItems().stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum();
-        int totalCats = itemModel.getCategories().size();
-        statBar.add(makeStatChip(String.valueOf(totalItems), "items", new Color(147, 197, 253)));
-        statBar.add(makeStatChip(String.valueOf(totalQty), "units in stock", new Color(110, 231, 183)));
-        statBar.add(makeStatChip(String.format("%,.0f(THB)", totalVal), "total value", new Color(253, 224, 71)));
-        statBar.add(makeStatChip(String.valueOf(totalCats), "categories", new Color(216, 180, 254)));
-        statBar.revalidate();
-        statBar.repaint();
-    }
-
     public void refreshTable() {
         String kw = (searchField != null) ? searchField.getText().trim() : "";
         boolean isPlaceholder = kw.equals("Search by name or category…");
@@ -589,7 +576,6 @@ public class DashboardView extends JFrame {
                 });
             }
         }
-        refreshStatBar();
     }
 
     private void filterTable() {
