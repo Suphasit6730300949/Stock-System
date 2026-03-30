@@ -349,7 +349,7 @@ public class DashboardView extends JFrame {
                 return c;
             }
         };
-        table.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        table.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 17));
         table.setRowHeight(42);
         table.setSelectionBackground(SEL_BG);
         table.setSelectionForeground(SEL_FG);
@@ -405,7 +405,7 @@ public class DashboardView extends JFrame {
                         super.paintComponent(g);
                     }
                 };
-                lbl.setFont(new Font("Segoe UI Emoji", Font.BOLD, 12));
+                lbl.setFont(new Font("Segoe UI Emoji", Font.BOLD, 15));
                 lbl.setHorizontalAlignment(SwingConstants.CENTER);
                 lbl.setForeground(sel ? SEL_FG : Color.decode("#0369a1"));
                 lbl.setBackground(sel ? SEL_BG : (row % 2 == 0 ? TABLE_BG : ROW_ALT));
@@ -417,7 +417,7 @@ public class DashboardView extends JFrame {
 
         // styled table header
         JTableHeader tblHeader = table.getTableHeader();
-        tblHeader.setFont(new Font("Segoe UI Emoji", Font.BOLD, 12));
+        tblHeader.setFont(new Font("Segoe UI Emoji", Font.BOLD, 15));
         tblHeader.setBackground(HDR_TBL_BG);
         tblHeader.setForeground(HDR_TBL_FG);
         tblHeader.setPreferredSize(new Dimension(0, 44));
@@ -427,7 +427,7 @@ public class DashboardView extends JFrame {
             public Component getTableCellRendererComponent(
                     JTable t, Object v, boolean sel, boolean foc, int row, int col) {
                 JLabel lbl = new JLabel(v != null ? v.toString().toUpperCase() : "");
-                lbl.setFont(new Font("Segoe UI Emoji", Font.BOLD, 11));
+                lbl.setFont(new Font("Segoe UI Emoji", Font.BOLD, 14));
                 lbl.setForeground(HDR_TBL_FG);
                 lbl.setBackground(HDR_TBL_BG);
                 lbl.setOpaque(true);
@@ -551,7 +551,9 @@ public class DashboardView extends JFrame {
         };
         for (String label : sortLabels) {
             JMenuItem mi = new JMenuItem(label);
-            mi.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 13));
+            mi.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 15));
+            mi.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
+            mi.setPreferredSize(new Dimension(260, 38));
             mi.addActionListener(e -> sortAndDisplay(label));
             sortMenu.add(mi);
         }
