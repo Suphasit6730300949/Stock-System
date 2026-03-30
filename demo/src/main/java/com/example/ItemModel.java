@@ -61,4 +61,12 @@ public class ItemModel {
     public List<String> getCategories() {
         return new ArrayList<>(categories);
     }
+
+    // ── โหลดข้อมูลใหม่จาก MongoDB ──
+    public void reloadFromDB() {
+        items = db.loadAllItems();
+        List<String> savedCats = db.loadAllCategories();
+        categories.clear();
+        categories.addAll(savedCats);
+    }
 }
